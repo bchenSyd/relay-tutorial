@@ -70,7 +70,8 @@ const {nodeInterface, nodeField} = nodeDefinitions(
 
 
 // step 2: now let's define the graphQLTypes 
-//(these 3 types must be declared in the right order, ES6 doesn't allow you to refer to variables that are defined later)
+//(these 3 types must be declared in the right order, 
+// ES6 DOES allow you to refer to variables that are defined later) BUT TYPE SCRIPT WON'T!  TYPE SCRIPT IS VERY STRICT
 // 2.1 define HidingSpot Type (must be defined first, becuase it's reference later on)
     const hidingSpotType = new GraphQLObjectType({
       name: 'HidingSpot',
