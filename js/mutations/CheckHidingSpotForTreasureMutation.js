@@ -1,6 +1,7 @@
 import Relay from 'react-relay';
 
 export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
+  //***************** hard dependency declaration ********************** */
   static fragments = {
     game: () => Relay.QL`
       fragment on Game {
@@ -14,13 +15,23 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
       }
     `,
   };
+//*************************************************** */
+
+  //which mutation? checkHidingSpotForTreasure is the filed name (think of a muation as a function, this is the function name);
   getMutation() {
     return Relay.QL`mutation{checkHidingSpotForTreasure}`;
   }
   getCollisionKey() {
     return `check_${this.props.game.id}`;
   }
-  getFatQuery() {
+
+  // Use this method to design a ‘fat query’ – one that represents every
+  // field in your data model that could change as a result of this mutation
+  // tell the server what to return (performance tunning)
+
+  // make this as 'fat' as possible, as it's going to be intersected with the 'tracked query' later
+  // tracked query is the query that retrieve data for the react component render function
+  getFatQuery() { 
     return Relay.QL`
       fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
         hidingSpot {
@@ -33,7 +44,16 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
       }
     `;
   }
+  //what should relay do after `ready` event? i.e. what's the nature of this mutation ?
+  //details: https://github.com/bochen2014/relay-digest/tree/master/mutation/RelayMutation.js
+  //FIELDS_CHANGE: update a node
+  //RANGE_ADD:  add a new edge to a range.
+  //NODE_DELETE : remote edge from a range, and delete the node
+  // RANGE_DELETE remove edge from a range, but not delete the node
   getConfigs() {
+    //tell relay how to handle the payLoad returned by the server;
+    //here we say, relay, update the fields in queryData that has global id in the fieldIDs list
+    //fild name is actually optional
     return [{
       type: 'FIELDS_CHANGE',
       fieldIDs: {
@@ -42,11 +62,15 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
       },
     }];
   }
+
   getVariables() {
+    //props is specified in Relay.Mutation constructor
     return {
       id: this.props.hidingSpot.id,
     };
   }
+
+
   getOptimisticResponse() {
     return {
       game: {

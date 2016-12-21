@@ -125,7 +125,7 @@ const gameType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-
+/********************************************************************************* */
 const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
@@ -137,18 +137,61 @@ const queryType = new GraphQLObjectType({
   }),
 });
 
+/*
+
+
+type Query {
+  # Fetches an object given its ID
+  node(
+    # The ID of an object
+    id: ID!
+  ): Node
+  game: Game
+}
+
+
+human readable:
+Query is a name of a graphQLObject type, it has 2 fields, 
+1. one named node, which is of type Node
+# An object with an ID
+interface Node {
+  # The id of the object.
+  id: ID!
+}
+
+2. and the other one called game, which is of type Game
+
+type Game implements Node {
+  # The ID of an object
+  id: ID!
+
+  # Places where treasure might be hidden
+  hidingSpots(after: String, first: Int, before: String, last: Int): HidingSpotConnection
+
+  # The number of turns a player has left to find the treasure
+  turnsRemaining: Int
+}
+
+
+ */
+
+//********************************************************************************** */
 
 //******************************************************************************************
 //                    Define Mutation
 //******************************************************************************************
 
+
+
+// inputFields  + clientMutationId => CheckHidingSpotForTreasureInput;
+// outputFields + clientMutationId => CheckHidingSpotForTreasurePayload
 const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
   name: 'CheckHidingSpotForTreasure',
   //1. we define mutation input parameter(s)
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
   },
-  //2.  and a list of fields that the client MIGHT/MAY need to update UI for
+  //2.  and a list of fields that the client MIGHT/MAY need to update UI for ==> corresponding to fatQuery
   outputFields: {
     hidingSpot: { //hasBeenChecked.hasBeenChecked changed;
       type: hidingSpotType,
@@ -173,16 +216,24 @@ const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
   },
 });
 
+/**************************************************************************************************************************************** */
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     checkHidingSpotForTreasure: CheckHidingSpotForTreasureMutation,
   }),
 });
+                         // schema.graphql version
 
+// type Mutation {
+//   checkHidingSpotForTreasure(input: CheckHidingSpotForTreasureInput!): CheckHidingSpotForTreasurePayload
+// }
 
-
-
+                      // human readable version
+/*   Mutation (the graphqlObjecttype name)  is an graphQLObjectType, and it has a field , which is like a function, that takes in an 
+CheckHidingSpotForTreasureInput (not null) and returns an CheckHidingSpotForTreasurePayload
+*/
+/**************************************************************************************************************************************** */
 
 
 

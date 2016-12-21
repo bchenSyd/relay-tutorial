@@ -4,8 +4,10 @@ import Relay from 'react-relay';
 
 class App extends React.Component {
   //this.props.relay comes from HOC RelayContainer
+  //RelayContainer.state.relayProp {applyUpdate, commitUpdate...etc}
   _getHidingSpotStyle(hidingSpot) {
     let color;
+    //hasOptimisticUpdate(record) ?? getPendingTransactions(record/node)   ??
     if (this.props.relay.hasOptimisticUpdate(hidingSpot)) {
       color = 'yellow';
     } else if (hidingSpot.hasBeenChecked) {
@@ -56,9 +58,14 @@ class App extends React.Component {
       );
     });
   }
+
+  onClick = event =>{
+    this.forceUpdate()
+  }
   render() {
     let headerText;
-    if (this.props.relay.getPendingTransactions(this.props.game)) {
+    const pendingTrx = this.props.relay.getPendingTransactions(this.props.game)
+    if (pendingTrx) {
       headerText = '\u2026';
     } else if (this._hasFoundTreasure()) {
       headerText = 'You win!';
@@ -72,6 +79,7 @@ class App extends React.Component {
         <h1>{headerText}</h1>
         {this.renderGameBoard()}
         <p>Turns remaining: {this.props.game.turnsRemaining}</p>
+        <button onClick={this.onClick} >ForceUpdate</button>
       </div>
     );
   }
@@ -82,6 +90,7 @@ export default Relay.createContainer(App, {
     game: () => Relay.QL`
       fragment on Game {
         turnsRemaining,
+        #get hidingSpot connection;
         hidingSpots(first: 9) {
           edges {
             node {
@@ -92,8 +101,20 @@ export default Relay.createContainer(App, {
             }
           }
         },
+        #get everything for game;
         ${CheckHidingSpotForTreasureMutation.getFragment('game')},
       }
     `,
   },
 });
+
+/*
+ edges {
+      node {
+        hasBeenChecked,  #1
+        hasTreasure,   #2
+        id, #3
+        ${CheckHidingSpotForTreasureMutation.getFragment('hidingSpot')},  #4
+#4 belongs to the hard dependency of a muation;
+#1, #2, #3 are going to be intersected with #4: fatQuery, for server to determine what to return back after a mutation;
+ */
