@@ -17,13 +17,13 @@ const hidingSpots = [];
   for (let i = 0; i < 9; i++) {
     hidingSpot = new HidingSpot();
     hidingSpot.id = `${i}`;
-    hidingSpot.hasTreasure = (i === indexOfSpotWithTreasure);
+    hidingSpot.hasTreasure = false;//(i === indexOfSpotWithTreasure);
     hidingSpot.hasBeenChecked = false;
     hidingSpots.push(hidingSpot);
   }
 })();
 
-let turnsRemaining = 3;
+let turnsRemaining = 10;
 
 export function checkHidingSpotForTreasure(id) {
   if (hidingSpots.some(hs => hs.hasTreasure && hs.hasBeenChecked)) {

@@ -73,57 +73,57 @@ const {nodeInterface, nodeField} = nodeDefinitions(
 //(these 3 types must be declared in the right order, 
 // ES6 DOES allow you to refer to variables that are defined later) BUT TYPE SCRIPT WON'T!  TYPE SCRIPT IS VERY STRICT
 // 2.1 define HidingSpot Type (must be defined first, becuase it's reference later on)
-    const hidingSpotType = new GraphQLObjectType({
-      name: 'HidingSpot',
-      description: 'A place where you might find treasure',
-      fields: () => ({
-        id: globalIdField('HidingSpot'),
-        hasBeenChecked: {
-          type: GraphQLBoolean,
-          description: 'True if this spot has already been checked for treasure',
-          resolve: (hidingSpot) => hidingSpot.hasBeenChecked,
-        },
-        hasTreasure: {
-          type: GraphQLBoolean,
-          description: 'True if this hiding spot holds treasure',
-          resolve: (hidingSpot) => {
-            if (hidingSpot.hasBeenChecked) {
-              return hidingSpot.hasTreasure;
-            } else {
-              return null;  // Shh... it's a secret!
-            }
-          },
-        },
-      }),
-      interfaces: [nodeInterface],
-    });
+const hidingSpotType = new GraphQLObjectType({
+  name: 'HidingSpot',
+  description: 'A place where you might find treasure',
+  fields: () => ({
+    id: globalIdField('HidingSpot'),
+    hasBeenChecked: {
+      type: GraphQLBoolean,
+      description: 'True if this spot has already been checked for treasure',
+      resolve: (hidingSpot) => hidingSpot.hasBeenChecked,
+    },
+    hasTreasure: {
+      type: GraphQLBoolean,
+      description: 'True if this hiding spot holds treasure',
+      resolve: (hidingSpot) => {
+        if (hidingSpot.hasBeenChecked) {
+          return hidingSpot.hasTreasure;
+        } else {
+          return null;  // Shh... it's a secret!
+        }
+      },
+    },
+  }),
+  interfaces: [nodeInterface],
+});
 
 // 2.2 define collection type/ list type / connectionType
 //this is how you give destructing assignment a new vairable name
 const {connectionType: hidingSpotConnection} = //note we assign a new variale name `hidingSpotConnection`
-  connectionDefinitions({name: 'HidingSpot', nodeType: hidingSpotType});
+  connectionDefinitions({ name: 'HidingSpot', nodeType: hidingSpotType });
 
 // 2.3 Define GameType
-    const gameType = new GraphQLObjectType({
-      name: 'Game',
-      description: 'A treasure search game',
-      fields: () => ({
-        id: globalIdField('Game'),
-        hidingSpots: {
-          //==========================> here is how the connectionType/collection type/ list type is used
-          type: hidingSpotConnection, 
-          description: 'Places where treasure might be hidden',
-          args: connectionArgs,
-          resolve: (game, args) => connectionFromArray(getHidingSpots(), args),
-        },
-        turnsRemaining: {
-          type: GraphQLInt,
-          description: 'The number of turns a player has left to find the treasure',
-          resolve: () => getTurnsRemaining(),
-        },
-      }),
-      interfaces: [nodeInterface],
-    });
+const gameType = new GraphQLObjectType({
+  name: 'Game',
+  description: 'A treasure search game',
+  fields: () => ({
+    id: globalIdField('Game'),
+    hidingSpots: {
+      //==========================> here is how the connectionType/collection type/ list type is used
+      type: hidingSpotConnection,
+      description: 'Places where treasure might be hidden',
+      args: connectionArgs,
+      resolve: (game, args) => connectionFromArray(getHidingSpots(), args),
+    },
+    turnsRemaining: {
+      type: GraphQLInt,
+      description: 'The number of turns a player has left to find the treasure',
+      resolve: () => getTurnsRemaining(),
+    },
+  }),
+  interfaces: [nodeInterface],
+});
 
 
 const queryType = new GraphQLObjectType({
@@ -160,10 +160,16 @@ const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
     },
   },
   //3. Finally, we implement a method that performs the underlying mutation
+  //   the actual mutation functin may return a promise
   mutateAndGetPayload: ({id}) => {
     const localHidingSpotId = fromGlobalId(id).id;
-    checkHidingSpotForTreasure(localHidingSpotId);
-    return {localHidingSpotId};
+    return new Promise(resolve => {
+      setTimeout(() => {
+        checkHidingSpotForTreasure(localHidingSpotId);
+
+        resolve({ localHidingSpotId });
+      }, 500)
+    })
   },
 });
 
