@@ -30,6 +30,7 @@ export function checkHidingSpotForTreasure(id) {
     return;
   }
   turnsRemaining--;
+  turnsRemaining = turnsRemaining || 9; //auto-restart
   const hidingSpot = getHidingSpot(id);
   hidingSpot.hasBeenChecked = true;
 }

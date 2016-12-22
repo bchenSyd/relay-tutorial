@@ -31,6 +31,10 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
 
   // make this as 'fat' as possible, as it's going to be intersected with the 'tracked query' later
   // tracked query is the query that retrieve data for the react component render function
+  // ***********    the approach in GraphQL is for clients (`react-relay`) to query for things that may change after a mutation.
+  //       But what exactly do we put in that query? 
+  // fatQuery intersect (inner join) traced query
+  // ***********    In addition to the cache of data,  Relay also remembers the queries used to fetch each item.    **************
   getFatQuery() { 
     return Relay.QL`
       fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
@@ -52,7 +56,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   // RANGE_DELETE remove edge from a range, but not delete the node
   getConfigs() {
     //tell relay how to handle the payLoad returned by the server;
-    //here we say, relay, update the fields in queryData that has global id in the fieldIDs list
+    //here we say, relay, update record store items with id in passed in fieldIDs list
     //fild name is actually optional
     return [{
       type: 'FIELDS_CHANGE',
@@ -68,6 +72,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
     return {
       id: this.props.hidingSpot.id,
     };
+
   }
 
 
