@@ -54,9 +54,9 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   // ***********    In addition to the cache of data,  Relay also remembers the queries used to fetch each item.    **************
   getFatQuery() { 
     return Relay.QL`
-      # CheckHidingSpotForTreasurePayload contains everything that server think may changes;
-      # within fatQuery, we specifiy what Client think may change
       fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
+         # CheckHidingSpotForTreasurePayload contains everything that server think may changes;
+         # within fatQuery, we specifiy what Client think may change
         hidingSpot {
           hasBeenChecked,
           hasTreasure,
