@@ -1,12 +1,27 @@
 import Relay from 'react-relay';
 
 export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
+   //Relay container has  
+   //in relay container: Relay.createContainer {Component, {  initialVariables:{variable:'value'} , fragments:{ filedName:()=>Relay.QL`fragment on Type{ subField(arg:$variable){ sub-subfields..}}`} }
+   //in react component: this.props.relay.variables and this.props.relay.setVariables({variable:'new-value'})
+   static initialVariables = {
+     name:'value'
+  };
+  static prepareVariables = (prevVariables) => {
+    var overrideVariables = {name:'new-value'};   
+    return {...prevVariables, ...overrideVariables};
+  };
   //***************** hard dependency declaration ********************** */
+  /* Any props that we pass to the constructor of a mutation will become available to its instance methods as this.props. 
+  Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data: */
+  //i.e. this.props.game.id, this.props..game.turnsRemaining and this.props..hidingSpot.id are all available within current mutation instance
+  //https://facebook.github.io/relay/docs/guides-mutations.html#mutation-props
   static fragments = {
     game: () => Relay.QL`
       fragment on Game {
         id,
         turnsRemaining,
+        #person(name:$name){id}
       }
     `,
     hidingSpot: () => Relay.QL`
@@ -19,12 +34,14 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
 
   //which mutation? checkHidingSpotForTreasure is the filed name (think of a muation as a function, this is the function name);
   getMutation() {
+    //this.props.game.id is available , guaranteed by Relay
     return Relay.QL`mutation{checkHidingSpotForTreasure}`;
   }
   getCollisionKey() {
     return `check_${this.props.game.id}`;
   }
 
+  // ripple effects after a change
   // Use this method to design a ‘fat query’ – one that represents every
   // field in your data model that could change as a result of this mutation
   // tell the server what to return (performance tunning)
@@ -37,6 +54,8 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   // ***********    In addition to the cache of data,  Relay also remembers the queries used to fetch each item.    **************
   getFatQuery() { 
     return Relay.QL`
+      # CheckHidingSpotForTreasurePayload contains everything that server think may changes;
+      # within fatQuery, we specifiy what Client think may change
       fragment on CheckHidingSpotForTreasurePayload @relay(pattern: true) {
         hidingSpot {
           hasBeenChecked,
