@@ -54,12 +54,20 @@ class App extends React.Component {
           key={edge.node.id}
           onClick={this._handleHidingSpotClick.bind(this, edge.node)}
           style={this._getHidingSpotStyle(edge.node)}
-        />
+          />
       );
     });
   }
 
-  onClick = event =>{
+  _setVariables = event=>{
+    const {variables:currentVariables, setVariables} =  this.props.relay
+    console.log(` current variables is ${JSON.stringify(currentVariables)}`)
+    const newVariables = {first:10}
+    console.log(` this.props.relay.setVariables to ${JSON.stringify(newVariables)}`)
+    setVariables(newVariables)
+  }
+
+  onClick = event => {
     this.forceUpdate()
   }
   render() {
@@ -79,6 +87,7 @@ class App extends React.Component {
         <h1>{headerText}</h1>
         {this.renderGameBoard()}
         <p>Turns remaining: {this.props.game.turnsRemaining}</p>
+        <button onClick={this._setVariables} >setVariables</button>
         <button onClick={this.onClick} >ForceUpdate</button>
       </div>
     );
@@ -86,12 +95,26 @@ class App extends React.Component {
 }
 
 export default Relay.createContainer(App, {
+  //************************************  Optional       ***************************************************** */
+  initialVariables: { first: 9 },
+  //this is just a built-in transform slot, where you can put your varialbe transform logic
+  //invoked in 2 places  
+  //                     1. initial load, where input parameter is `initialVariables`
+  //                     2. after `this.props.relay.setVariables(newVariables)`, input parameter is newVariables
+  prepareVariables: prevVariables => {
+    console.log(`prepareVariables(${JSON.stringify(prevVariables)}`)
+    return {
+      ...prevVariables,
+      first: prevVariables.first - 1
+    }
+  },
+  //*********************************************************************************************************** */
   fragments: {
     game: () => Relay.QL`
       fragment on Game {
         turnsRemaining,
         #get hidingSpot connection;
-        hidingSpots(first: 9) {
+        hidingSpots(first: $first) {
           edges {
             node {
               hasBeenChecked,
