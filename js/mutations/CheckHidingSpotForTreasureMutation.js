@@ -18,7 +18,8 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   //https://facebook.github.io/relay/docs/guides-mutations.html#mutation-props
   static fragments = {
     game: () => Relay.QL`
-      # mutation root field won't have ID populated in the mutation payload. So it's critical that you keep root field name synchronized with your store
+      # in getOptimisticResponse(), you don't have to return the id field for the root field; Since there can be only ONE root field, relay will tried to match by fieldName . 
+      # see \traversal\writeRelayUpdatePayload.js :: handleMerge method
       fragment on Game {
         id,
         turnsRemaining,
@@ -26,7 +27,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
       }
     `,
     hidingSpot: () => Relay.QL`
-     # non-root field will have ID populated in the mutation payload
+     # you MUST return the id field in your getOptimisticResponse, otherwise relayd doesn't know which record has changed!
       fragment on HidingSpot {
         id,
       }
