@@ -17,17 +17,17 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   //i.e. this.props.game.id, this.props..game.turnsRemaining and this.props..hidingSpot.id are all available within current mutation instance
   //https://facebook.github.io/relay/docs/guides-mutations.html#mutation-props
   static fragments = {
+    //in getOptimisticResponse(), you don't have to return the id field for the root field; Since there can be only ONE root field, relay will tried to match by fieldName . 
+    //see \traversal\writeRelayUpdatePayload.js :: handleMerge method
     game: () => Relay.QL`
-      # in getOptimisticResponse(), you don't have to return the id field for the root field; Since there can be only ONE root field, relay will tried to match by fieldName . 
-      # see \traversal\writeRelayUpdatePayload.js :: handleMerge method
       fragment on Game {
         id,
         turnsRemaining,
         #person(name:$name){id}
       }
     `,
+    // you MUST return the id field in your getOptimisticResponse, otherwise relayd doesn't know which record has changed!
     hidingSpot: () => Relay.QL`
-     # you MUST return the id field in your getOptimisticResponse, otherwise relayd doesn't know which record has changed!
       fragment on HidingSpot {
         id,
       }
