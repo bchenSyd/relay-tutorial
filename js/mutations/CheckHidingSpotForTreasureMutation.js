@@ -18,6 +18,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
   //https://facebook.github.io/relay/docs/guides-mutations.html#mutation-props
   static fragments = {
     game: () => Relay.QL`
+      # mutation root field won't have ID populated in the mutation payload. So it's critical that you keep root field name synchronized with your store
       fragment on Game {
         id,
         turnsRemaining,
@@ -25,6 +26,7 @@ export default class CheckHidingSpotForTreasureMutation extends Relay.Mutation {
       }
     `,
     hidingSpot: () => Relay.QL`
+     # non-root field will have ID populated in the mutation payload
       fragment on HidingSpot {
         id,
       }

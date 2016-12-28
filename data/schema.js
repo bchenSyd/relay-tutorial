@@ -211,7 +211,7 @@ const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
         checkHidingSpotForTreasure(localHidingSpotId);
 
         resolve({ localHidingSpotId });
-      }, 500)
+    }, 2*1000)
     })
   },
 });
