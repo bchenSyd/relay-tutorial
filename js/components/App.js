@@ -28,7 +28,11 @@ class App extends React.Component {
       width: 100,
     };
   }
-  _handleHidingSpotClick(hidingSpot) {
+
+  // babel stage 2 feature, see: https://babeljs.io/docs/plugins/preset-stage-2/
+  //or:
+//   plugins: ["transform-class-properties"]
+  _handleHidingSpotClick = (hidingSpot) => {  //declare instance properties
     if (this._isGameOver()) {
       return;
     }
@@ -52,7 +56,7 @@ class App extends React.Component {
       return (
         <div
           key={edge.node.id}
-          onClick={this._handleHidingSpotClick.bind(this, edge.node)}
+          onClick={this._handleHidingSpotClick /*  so that you don't have to call .bind(this) explicitly*/}
           style={this._getHidingSpotStyle(edge.node)}
           />
       );
